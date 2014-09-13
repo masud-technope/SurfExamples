@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import visitor.CodeObject;
 import visitor.Dependence;
-import weka.core.pmml.TargetMetaInfo;
 import core.CodeFragment;
 import core.ScoreWeights;
 
@@ -141,6 +140,7 @@ public class StructuralMatchScore {
 		}
 		return dependencyMatchScore;
 	}
+	
 	
 	public ArrayList<CodeFragment> collectStructuralScores()
 	{

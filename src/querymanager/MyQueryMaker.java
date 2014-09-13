@@ -46,7 +46,7 @@ public class MyQueryMaker {
 		String query = new String();
 		try {
 			InputDocProcessor processor = new InputDocProcessor(exceptionName,
-					queryContextCode);
+					queryContextCode,0);
 			CodeFragment queryFragment = processor.extractInputDocumentInfo();
 			// The map contains the actions and interactions of a class
 			HashMap<CodeObject, Integer> LinkCount = new HashMap<>();

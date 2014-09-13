@@ -41,18 +41,19 @@ public class IndexFiles {
                  + "This indexes the documents in DOCS_PATH, creating a Lucene index"
                  + "in INDEX_PATH that can be searched with SearchFiles";
     
-    String _indexPath = StaticData.Lucene_Data_Home+"/"+"index";
-    String _docsPath = StaticData.Surf_Data_Base+"/"+"fragments";
+    String _indexPath = StaticData.Lucene_Data_Home+"/"+"indexall";
+    String _docsPath = StaticData.Surf_Data_Base+"/"+"fragmentsAll";
     boolean create = true;
     
-    for(int q=5;q<=150;q++)
-    {
+    //for(int q=5;q<=150;q++)
+    //{
     	//int q=1;
-    	String docsPath=_docsPath+"/"+q;
-    	String indexPath=_indexPath+"/"+q;
+    	String docsPath=_docsPath;//+"/"+q;
+    	String indexPath=_indexPath;//+"/"+q;
     	if(new File(docsPath).exists()){
     		new File(indexPath).mkdir();
-    	}else continue;
+    	}
+    	//else continue;
     	
     final File docDir = new File(docsPath);
     if (!docDir.exists() || !docDir.canRead()) {
@@ -99,7 +100,7 @@ public class IndexFiles {
 
       Date end = new Date();
       System.out.println(end.getTime() - start.getTime() + " total milliseconds");
-      System.out.println("Indexed query :"+q);
+      //System.out.println("Indexed query :"+q);
       
       Thread.sleep(2000);
 
@@ -110,7 +111,7 @@ public class IndexFiles {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
 	}
-    }
+    //}
   }
 
   /**

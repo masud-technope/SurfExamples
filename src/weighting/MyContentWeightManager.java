@@ -23,7 +23,7 @@ public class MyContentWeightManager {
 		int exceptionID=i;
 		String contextCode=ContextCodeLoader.loadContextCode(exceptionID);
 		if(contextCode.isEmpty())continue; //avoid non-existent exception
-		ArrayList<CodeFragment> codeFragments=CFIndexManager.readCodeFragment(exceptionID);
+		ArrayList<CodeFragment> codeFragments=CFIndexManager.readAllFragments();// readCodeFragment(exceptionID);
 		LexicalMatchScore lexical=new LexicalMatchScore(contextCode, codeFragments);
 		codeFragments=lexical.collectLexicalMatchScore();
 		saveContentScores(exceptionID, codeFragments);

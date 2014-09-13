@@ -107,6 +107,8 @@ public class CustomSourceVisitor extends VoidVisitorAdapter {
 		//System.out.println(m.toString());
 		//String handlerCode=new String();
 		//String tryBlockCode=new String();
+		int startLine=m.getBeginLine();
+		int endLine=m.getEndLine();
 		String completeCode=new String();
 		BlockStmt body=m.getBody();
 		//check if the body contains the handler code
@@ -133,29 +135,33 @@ public class CustomSourceVisitor extends VoidVisitorAdapter {
 				stmt.accept(this, obj);
 			}
 			//all statements are browsed
-			addMethodDetails(completeCode);
+			addMethodDetails(completeCode,startLine,endLine);
 			//save the information for each method
 			//saveMethodInfo();
 			//MethodInfoDisplay.showMethodDetails(codeObjectMap);
 			//MethodInfoDisplay.showDependencies(dependencies);
-			//clear the hashmap
+			//clear the HashMap
 			clearContainers();
 		}
 		
 	}
 	
 	
-	protected void addMethodDetails(String completeCode)
+	protected void addMethodDetails(String completeCode, int startLine, int endLine)
 	{
 		//code for adding details of the browsed method
 		try{
 			CodeFragment codeFragment=new CodeFragment();
 			codeFragment.ExceptionName=this.exceptionName;
 			codeFragment.CompleteCode=completeCode; 
+			//scope of the method
+			codeFragment.beginLine=startLine;
+			codeFragment.endLine=endLine;
 			//copying hash map
 			codeFragment.codeObjectMap=(HashMap<String, CodeObject>) codeObjectMap.clone();
 			codeFragment.dependencies.addAll(dependencies);
 			codeFragment.handlers.addAll(catchClauses);
+			//add to the collection
 			Fragments.add(codeFragment);
 			
 		}catch(Exception exc){
@@ -163,7 +169,6 @@ public class CustomSourceVisitor extends VoidVisitorAdapter {
 			exc.printStackTrace();
 		}
 	}
-	
 	protected boolean analyzeEligibilityOfCatchClause(CatchClause myclause)
 	{
 		// code for analyzing the eligibility of catch Clause

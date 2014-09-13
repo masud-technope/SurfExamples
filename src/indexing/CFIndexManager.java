@@ -131,14 +131,12 @@ public class CFIndexManager {
 				FileInputStream fstream = new FileInputStream(new File(serFile));
 				ObjectInputStream oistream = new ObjectInputStream(fstream);
 				CodeFragment cfragment = (CodeFragment) oistream.readObject();
-				cfragment.FragmentID=i;
 				// storing the fragment extracted
 				Fragments.add(cfragment);
 			}
 			System.out.println("Exception ID:"+exceptionID+" Fragments recovered:"+Fragments.size());
 		} catch (Exception exc) {
 			// handle the exception
-			System.err.println(exc.getMessage());
 		}
 		return Fragments;
 	}
@@ -175,6 +173,14 @@ public class CFIndexManager {
 		File fdir=new File(folderPath);
 		return fdir.list().length;
 	}
+	
+	public static int getLocalRepoFileCount()
+	{
+		String folderPath = StaticData.Surf_Data_Base + "/fragmentsIndexAll";
+		File fdir=new File(folderPath);
+		return fdir.list().length;
+	}
+	
 	
 	public static void main(String[] args){
 		

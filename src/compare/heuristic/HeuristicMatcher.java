@@ -118,7 +118,7 @@ public class HeuristicMatcher {
 				String line=frag.FragmentID+"\t"+frag.sourceFileID+"\t"+frag.totalHeuristicScore;
 				fwriter.write(line+"\n");
 				count++;
-				if(count==20)break;
+				if(count==30)break;
 			}
 			fwriter.close();
 			System.out.println("Saved items:"+sorted.size());

@@ -64,7 +64,7 @@ public class CodeFragment implements Serializable {
 	public double total_lexical_structural_handlerquality_score=0;
 	public double total_lexical_structural_readability_handlerquality_score=0;
 	
-	
-	
-	
+	//scope of the method
+	public int beginLine;
+	public int endLine;
 }

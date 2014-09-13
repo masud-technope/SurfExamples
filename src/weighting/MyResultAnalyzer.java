@@ -1,11 +1,9 @@
 package weighting;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
-
 import misc.SolutionChecker;
 import utility.SolutionLoader;
 import core.StaticData;
@@ -28,7 +26,10 @@ public class MyResultAnalyzer {
 	
 	protected void loadMySolutions() {
 		// code for loading the heuristic solutions
-		String fileName = StaticData.Surf_Data_Base + "/results";
+		
+		//String fileName = StaticData.Surf_Data_Base + "/results";
+		String fileName = StaticData.Surf_Data_Base + "/existing/lucene";
+		
 		for (int i = 1; i <= 150; i++) {
 			if (new File(StaticData.Surf_Data_Base + "/querycodes/" + i
 					+ ".txt").exists() == false) {
@@ -106,7 +107,6 @@ public class MyResultAnalyzer {
 					found=1;
 					break;
 				}
-				
 			}
 			if(found==0){
 				if(ffp_individual<0)ffp_individual=(i+1);
@@ -128,9 +128,6 @@ public class MyResultAnalyzer {
 		double total_avg_precision = 0;
 		int foundcases = 0;
 		double total_precision = 0;
-		ArrayList<Integer> goldList=new ArrayList<>();
-		ArrayList<Double> APKList=new ArrayList<>();
-		
 		for (Integer key : this.mySolList.keySet()) {
 			try {
 
@@ -142,14 +139,10 @@ public class MyResultAnalyzer {
 					foundcases++;
 					total_precision += indiv_precision;
 					indiv_precision = 0;
-					//add the fixed one
-					goldList.add(key);
 				}
 				matchcount += matched;
-				double avgprecision=getAveragePrecision(key.intValue(),
+				total_avg_precision += getAveragePrecision(key.intValue(),
 						solutions, tempList);
-				APKList.add(avgprecision);
-				total_avg_precision +=avgprecision; 
 			} catch (Exception exc) {
 			}
 		}
@@ -160,38 +153,6 @@ public class MyResultAnalyzer {
 		System.out.println("Total Recall:"+(double)matchcount/176);
 		System.out.println("Mean FFPP:"+ffp_total/65);
 		System.out.println("Mean RR:"+receiprocal_total/65);
-		
-		//printTheSolved(goldList);
-		printThePrecision(APKList);
-	}
-	
-	protected void printThePrecision(ArrayList<Double> solveds) {
-		String fileName = StaticData.Surf_Data_Base + "/analysis/precision/"
-				+ "p15.txt";
-		try {
-			FileWriter fwriter = new FileWriter(new File(fileName));
-			for (Double key : solveds) {
-				System.out.println(key);
-				fwriter.write(key+"\n");
-			}
-			fwriter.close();
-		} catch (Exception ex) {
-
-		}
-	}
-	protected void printTheSolved(ArrayList<Integer> solveds) {
-		String fileName = StaticData.Surf_Data_Base + "/analysis/precision/"
-				+ "p15.txt";
-		try {
-			FileWriter fwriter = new FileWriter(new File(fileName));
-			for (Integer key : solveds) {
-				System.out.println(key);
-				fwriter.write(key+"\n");
-			}
-			fwriter.close();
-		} catch (Exception ex) {
-
-		}
 	}
 	
 	public static void main(String[] args)

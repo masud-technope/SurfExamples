@@ -65,6 +65,7 @@ public class GitHubCodeCollector {
 
 		} catch (Exception exc) {
 			// handle the exception
+			exc.printStackTrace();
 		}
 		System.out.println("Total results collected:"+this.CodeFiles.size());
 		return this.CodeFiles;
@@ -146,11 +147,11 @@ public class GitHubCodeCollector {
 	public static void main(String[] args) {
 		// main method
 		int exceptionID=49;
-		String searchQuery = "java.io.IOException Socket";
+		String searchQuery = "GenericJDBCException Datasource";
 		GitHubCodeCollector gitCodeCollector = new GitHubCodeCollector(
 				searchQuery);
 		gitCodeCollector.collectGitHubResults();
-		//gitCodeCollector.saveCodeContents(exceptionID, gitCodeCollector.CodeFiles);
+		gitCodeCollector.saveCodeContents(exceptionID, gitCodeCollector.CodeFiles);
 	}
 
 }

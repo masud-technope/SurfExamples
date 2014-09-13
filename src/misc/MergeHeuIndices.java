@@ -8,6 +8,9 @@ import core.StaticData;
 
 public class MergeHeuIndices {
 	
+	
+	
+	
 	public static void main(String[] args){
 		int currentCounter=0;
 		for(int i=1;i<=150;i++){
@@ -15,13 +18,15 @@ public class MergeHeuIndices {
 				continue;
 			}
 			int exceptionID=i;
-			String folderName=StaticData.Surf_Data_Base+"/fragmentsIndex/"+exceptionID;
+			//String folderName=StaticData.Surf_Data_Base+"/fragmentsIndex/"+exceptionID;
+			String folderName=StaticData.Surf_Data_Base+"/fragments/"+exceptionID;
 			File[] files=new File(folderName).listFiles();
 			int succeeded=0;
 			for(File f:files){
 				int destFile=Integer.parseInt(f.getName().split("\\.")[0].trim());
 				destFile=destFile+currentCounter;
-				String destFileName=StaticData.Surf_Data_Base+"/fragmentsIndexAll/"+destFile+".ser";
+				//String destFileName=StaticData.Surf_Data_Base+"/fragmentsIndexAll/"+destFile+".ser";
+				String destFileName=StaticData.Surf_Data_Base+"/fragmentsAll/"+destFile+".txt";
 				try {
 					Files.copy(f.toPath(), new File(destFileName).toPath());
 					succeeded++;

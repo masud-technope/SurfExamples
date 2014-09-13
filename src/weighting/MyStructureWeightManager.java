@@ -25,9 +25,9 @@ public class MyStructureWeightManager {
 		int exceptionID=i;
 		String contextCode=ContextCodeLoader.loadContextCode(exceptionID);
 		if(contextCode.isEmpty())continue; //avoid non-existent exception
-		ArrayList<CodeFragment> codeFragments=CFIndexManager.readCodeFragment(exceptionID);
+		ArrayList<CodeFragment> codeFragments=CFIndexManager.readAllFragments();// readCodeFragment(exceptionID);
 		String exceptionName=ExceptionKeyLoader.getExceptionName(exceptionID);
-		InputDocProcessor inputProcessor=new InputDocProcessor(exceptionName, contextCode);
+		InputDocProcessor inputProcessor=new InputDocProcessor(exceptionName, contextCode,0);
 		CodeFragment queryFragment=inputProcessor.extractInputDocumentInfo();
 		StructuralMatchScore structural=new StructuralMatchScore(queryFragment, codeFragments);
 		codeFragments=structural.collectStructuralScores();

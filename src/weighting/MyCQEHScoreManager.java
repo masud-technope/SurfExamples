@@ -1,7 +1,6 @@
 package weighting;
 
 import indexing.CFIndexManager;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
@@ -19,21 +18,27 @@ public class MyCQEHScoreManager {
 
 	public void collectCQAndCHScores() {
 		// collect code quality and exception handler code scores
-		for (int i = 1; i <= 150; i++) {
-			int exceptionID = i;
-			String contextCode = ContextCodeLoader.loadContextCode(exceptionID);
-			if (contextCode.isEmpty())
-				continue; // avoid non-existent exception
+//		for (int i = 1; i <= 150; i++) {
+//			int exceptionID = i;
+//			String contextCode = ContextCodeLoader.loadContextCode(exceptionID);
+//			if (contextCode.isEmpty())
+//				continue; // avoid non-existent exception
 			ArrayList<CodeFragment> codeFragments = CFIndexManager
-					.readCodeFragment(exceptionID);
+					.readAllFragments();// readCodeFragment(exceptionID);
 			CodeQualityScore qualityScore = new CodeQualityScore(codeFragments);
 			codeFragments = qualityScore
 					.collectCodeQualityScores();
 			HandlerCodeScore handlerScore = new HandlerCodeScore(codeFragments);
 			codeFragments = handlerScore.collectExceptionHandlerQualityScores();
 			//save the scores
-			//saveCQCEHScores(exceptionID, codeFragments);
-		}
+			for (int i = 1; i <= 150; i++){
+				int exceptionID = i;
+				String contextCode = ContextCodeLoader.loadContextCode(exceptionID);
+				if (contextCode.isEmpty())
+		    	continue; // avoid non
+				saveCQCEHScores(exceptionID, codeFragments);
+			}
+		//}
 	}
 
 	protected void saveCQCEHScores(int exceptionID,
@@ -57,15 +62,6 @@ public class MyCQEHScoreManager {
 			// handle the exception
 		}
 	}
-	
-	protected void saveHandlerActions(ArrayList<CodeFragment> fragments)
-	{
-		
-		
-		
-	}
-	
-	
 	public static void main(String[] args) {
 		new MyCQEHScoreManager().collectCQAndCHScores();
 

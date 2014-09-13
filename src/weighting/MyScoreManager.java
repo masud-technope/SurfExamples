@@ -28,8 +28,9 @@ public class MyScoreManager {
 		this.exceptionID=exceptionID;
 		this.exceptionName=ExceptionKeyLoader.getExceptionName(exceptionID);
 		this.contextCode=ContextCodeLoader.loadContextCode(exceptionID);
-		this.queryFragment=new InputDocProcessor(this.exceptionName, this.contextCode).extractInputDocumentInfo();	
+		this.queryFragment=new InputDocProcessor(this.exceptionName, this.contextCode,0).extractInputDocumentInfo();	
 		this.Fragments=new ScoreLoader(exceptionID).loadDifferentScores();
+		System.out.println("Items loaded:"+this.Fragments.size());
 	}
 	
 	/*double matchedObj=targetFragment.CodeObjectMatchScore*queryFragment.codeObjectMap.keySet().size();
@@ -57,7 +58,6 @@ public class MyScoreManager {
 				* targetFragment.CodeObjectMatchScore;
 		targetFragment.StructuralSimilarityScore += ScoreWeights.CodeObjectDependencyWegiht
 				* targetFragment.DependencyMatchScore;
-
 		return targetFragment;
 	}
 	
@@ -156,9 +156,12 @@ public class MyScoreManager {
 			String outFile=StaticData.Surf_Data_Base+"/results/"+this.exceptionID+".txt";
 			FileWriter fwriter=new FileWriter(new File(outFile));
 			fwriter.write("FID\tSFile\tScore\n");
+			int count=0;
 			for(CodeFragment frag:sorted){
 				String line=frag.FragmentID+"\t"+frag.sourceFileID+"\t"+frag.total_lexical_structural_readability_handlerquality_score;
 				fwriter.write(line+"\n");
+				count++;
+				if(count==30)break;
 			}
 			fwriter.close();
 			System.out.println("Saved items:"+sorted.size());
@@ -174,6 +177,7 @@ public class MyScoreManager {
 			continue;
 		}
 		MyScoreManager manager=new MyScoreManager(exceptionID);
+		System.out.println(exceptionID);
 		manager.computeFinalScores();
 		}
 	}

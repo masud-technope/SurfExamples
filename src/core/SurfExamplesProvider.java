@@ -3,11 +3,12 @@ package core;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
-
 import scoring.ResultScoreManager;
 import scoring.ScoreCalculator;
 import structural.InputDocProcessor;
 import utility.CodeDownloader;
+import utility.ContextCodeLoader;
+import utility.RegexMatcher;
 
 public class SurfExamplesProvider {
 	
@@ -19,11 +20,17 @@ public class SurfExamplesProvider {
 	ArrayList<CodeFragment> Fragments;
 	ArrayList<CodeFile> CodeFiles;
 	SurfExampleSearch search;
+	String queryException;
+	int targetExceptionLine;
 	
-	public SurfExamplesProvider(String searchQuery, String contextCode)
+	public SurfExamplesProvider(String queryException, String searchQuery, String contextCode, int targetExceptionLine)
 	{
+		//initialization
+		this.queryException=queryException;
 		this.searchQuery=searchQuery;
-		this.exceptionName=this.searchQuery;
+		this.targetExceptionLine=targetExceptionLine;
+		//extracting the exception name
+		this.exceptionName=RegexMatcher.extractExceptionName(this.searchQuery);
 		this.contextCode=contextCode;
 		//query code fragment info
 		this.queryFragment=collectQueryCodeFragment();
@@ -34,7 +41,7 @@ public class SurfExamplesProvider {
 	
 	protected CodeFragment collectQueryCodeFragment()
 	{
-		InputDocProcessor inputProcessor=new InputDocProcessor(exceptionName, contextCode);
+		InputDocProcessor inputProcessor=new InputDocProcessor(queryException, contextCode, this.targetExceptionLine);
 		return inputProcessor.extractInputDocumentInfo();
 	}
 	
@@ -74,7 +81,7 @@ public class SurfExamplesProvider {
 			t.setName("Thread: #" + i);
 			myThreads.add(t);
 			scals.add(scal);
-			t.setPriority(Thread.NORM_PRIORITY);
+			t.setPriority(Thread.MAX_PRIORITY);
 			t.start();
 			System.out.println("Starting thread:" + t.getName());
 		}
@@ -98,6 +105,7 @@ public class SurfExamplesProvider {
 				}
 			}
 		}
+		System.out.println("Just finished the itermediate calculation");
 		return masterList;
 	}
 	
@@ -141,7 +149,8 @@ public class SurfExamplesProvider {
 			ResultScoreManager manager=new ResultScoreManager(masterList);
 			finalColls=manager.provideFinalResults();
 			long end=System.currentTimeMillis();
-			System.out.println("Time required:"+(end-start)/1000.0);
+			//System.out.println("Time required:"+(end-start)/1000.0);
+			System.out.println("Final score calculated successfully.");
 		}catch(Exception exc){
 			//handle the exception
 		}
@@ -168,13 +177,20 @@ public class SurfExamplesProvider {
 		}
 	}
 	
-	
 	public static void main(String[] args){
 		//code for testing
-		String searchQuery="java.nio.channels.ClosedChannelException";
-		String contextCode="";
-		SurfExamplesProvider provider=new SurfExamplesProvider(searchQuery, contextCode);
-		provider.provideFinalRankedExamples();
-		//provider.saveCodeContents(provider.search.CodeFiles);
+		String searchQuery="SocketException Socket";
+		int exceptionID=35;
+		String codecontext = ContextCodeLoader.loadContextCode(exceptionID);
+		String queryException="SocketException";
+		SurfExamplesProvider provider=new SurfExamplesProvider(queryException, searchQuery, codecontext,5);
+		ArrayList<CodeFragment> results=provider.provideFinalRankedExamples();
+		System.out.println("Results found:"+results.size());
+		int count=0;
+		for(CodeFragment cf:results){
+			System.out.println("Structure: "+cf.StructuralSimilarityScore);
+			count++;
+			if(count==15)break;
+		}
 	}
 }

@@ -16,7 +16,7 @@ public class GitHubClient {
 		try{
 			//adding the token
 			//callURL=callURL+"+access_token="+developerToken;
-			System.out.println(callURL);
+			//System.out.println(callURL);
 			URL url=new URL(callURL);
 			HttpURLConnection httpconn=(HttpURLConnection)url.openConnection();
 			httpconn.setRequestMethod("GET");
@@ -28,9 +28,10 @@ public class GitHubClient {
 				{
 					response+=line+"\n";
 				}
-				System.out.println(response);
+				//System.out.println(response);
 			}else{
 				System.out.println(httpconn.getResponseMessage());
+				System.out.println("Failed to collect the results from Github");
 			}
 		}catch(Exception exc){
 			exc.printStackTrace();

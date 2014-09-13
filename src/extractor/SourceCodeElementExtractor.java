@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
-
 import structural.SourceDocumentProcessor;
 import core.CodeFile;
 import core.CodeFragment;

@@ -2,50 +2,56 @@ package surfexamples.app;
 
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-
 import core.CodeFragment;
 import core.Result;
 import core.SurfExamplesProvider;
 
 public class SurfExamples_appServlet extends HttpServlet {
-	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	String searchQuery;
 	String codeContext;
+	String queryException;
+	int targetExceptionLine;
 	String charset="UTF-8";
 	
 	public void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
 		
+		//set char encoding
+		req.setCharacterEncoding("UTF-8");
+		
 		long curr_time=System.currentTimeMillis();
+		this.queryException=req.getParameter("queryexception");
 		this.searchQuery=req.getParameter("searchquery");
-		this.codeContext=req.getParameter("codecontext");
+		this.targetExceptionLine=Integer.parseInt(req.getParameter("targetline"));
+		String ccontext=req.getParameter("codecontext");
 		
 		//decoding of parameters
 		try
 		{
+			this.queryException=URLDecoder.decode(this.queryException,charset);
 			this.searchQuery=URLDecoder.decode(this.searchQuery, charset);
-			this.codeContext=URLDecoder.decode(this.codeContext, charset);
+			//this.codeContext=URLDecoder.decode(this.codeContext, charset);
+			byte[] bytes = ccontext.getBytes(StandardCharsets.ISO_8859_1);
+			this.codeContext = new String(bytes, StandardCharsets.UTF_8);
+			//System.out.println(this.codeContext);
 			
 		}catch(Exception exc){
+			System.err.println("Cant decode the parameters");
+			exc.printStackTrace();
 		}
 		
-		//this.searchQuery="java.net.SocketException: Permission denied: connect";
-		//this.stackTrace=get_stack_trace();
-		//this.codeContext="";
-		
-		SurfExamplesProvider provider=new SurfExamplesProvider(searchQuery, codeContext);
+		SurfExamplesProvider provider=new SurfExamplesProvider(queryException, searchQuery, codeContext,targetExceptionLine);
 		ArrayList<CodeFragment> results=provider.provideFinalRankedExamples();
 		int total_result=results.size();
 		long end_time=System.currentTimeMillis();
@@ -65,6 +71,7 @@ public class SurfExamples_appServlet extends HttpServlet {
 		int rank=1;
 		for(CodeFragment result:myResults)
 		{
+			System.out.println("Structure:"+result.StructuralSimilarityScore);
 			JSONObject jsonObj=new JSONObject();
 			try
 			{
@@ -77,8 +84,10 @@ public class SurfExamples_appServlet extends HttpServlet {
 			jsonObj.put("quality", result.HandlerQualityScore);
 			items.add(jsonObj);
 			rank++;
-			}catch(Exception exc){}
-			
+			}catch(Exception exc){
+				//handle the exception
+				exc.printStackTrace();
+			}
 		}
 		return items;
 	}

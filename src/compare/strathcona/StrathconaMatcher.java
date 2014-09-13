@@ -171,6 +171,7 @@ public class StrathconaMatcher {
 		String fileName = StaticData.Surf_Data_Base + "/existing/strathcona/"
 				+ exceptionID + ".txt";
 		try {
+			System.out.println("Item in master list:"+masterlist.size());
 			FileWriter fwriter = new FileWriter(new File(fileName));
 			for (Map.Entry<Integer, Integer> entry : masterlist) {
 				fwriter.write(entry.getKey() + "\t" + entry.getValue()+"\n");

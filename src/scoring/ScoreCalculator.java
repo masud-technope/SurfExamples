@@ -48,10 +48,11 @@ public class ScoreCalculator implements Runnable {
 			//downloading the code
 			
 			/*****temporary commented****/
-			//this.codeFiles=downloader.downloadCodeContents();
+			this.codeFiles=downloader.downloadCodeContents();
 			//extract the code fragments
-			//SourceCodeElementExtractor sourceExtractor=new SourceCodeElementExtractor(exceptionName, codeFiles);
-			//this.Fragments=sourceExtractor.collectCodeFragments();
+			SourceCodeElementExtractor sourceExtractor=new SourceCodeElementExtractor(exceptionName, codeFiles);
+			this.Fragments=sourceExtractor.collectCodeFragments();
+			//System.out.println("Query elements:"+this.queryFragment.codeObjectMap.size());
 			/*****temporary commented*******/
 			
 			//now perform other operation
@@ -65,7 +66,7 @@ public class ScoreCalculator implements Runnable {
 			}
 			//structural match score
 			try{
-				StructuralMatchScore structMatcher=new StructuralMatchScore(queryFragment, Fragments);
+				StructuralMatchScore structMatcher=new StructuralMatchScore(queryFragment, this.Fragments);
 				this.Fragments=structMatcher.collectStructuralScores();
 			}catch(Exception exc){
 				System.err.println("Failed to calculate the structural similarity");
@@ -73,7 +74,7 @@ public class ScoreCalculator implements Runnable {
 			}
 			//code quality scores
 			try{
-				CodeQualityScore qualityScore=new CodeQualityScore(Fragments);
+				CodeQualityScore qualityScore=new CodeQualityScore(this.Fragments);
 				this.Fragments=qualityScore.collectCodeQualityScores();
 			}catch(Exception exc){
 				System.err.println("Failed to calculate the code quality (readability)");
@@ -81,7 +82,7 @@ public class ScoreCalculator implements Runnable {
 			}
 			//handler code scores
 			try{
-				HandlerCodeScore hcodeScore=new HandlerCodeScore(Fragments);
+				HandlerCodeScore hcodeScore=new HandlerCodeScore(this.Fragments);
 				this.Fragments=hcodeScore.collectExceptionHandlerQualityScores();
 			}catch(Exception exc){
 				System.err.println("Failed to calculate the handler code scores");

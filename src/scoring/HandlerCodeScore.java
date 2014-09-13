@@ -10,7 +10,23 @@ public class HandlerCodeScore {
 	public HandlerCodeScore(ArrayList<CodeFragment> Fragments) {
 		this.Fragments = Fragments;
 	}
-	
+
+	/*protected double getReadabilityScore(CodeFragment targetFragment) {
+		// code for getting the readability scores
+		double avg_readability = 0;
+		double total_readability = 0;
+		ArrayList<CustomCatchClause> handlers = targetFragment.handlers;
+		for (CustomCatchClause myclause : handlers) {
+			double myreadability = raykernel.apps.readability.eval.Main
+					.getReadability(myclause.catchBlock);
+			total_readability += myreadability;
+		}
+		if (handlers.size() > 0) {
+			avg_readability = total_readability / handlers.size();
+		}
+		return avg_readability;
+	}*/
+
 	protected double getHandlerStatementCount(CodeFragment targetFragment) {
 		// code for getting the average number of statements in handler
 		int total_lines = 0;
@@ -37,8 +53,7 @@ public class HandlerCodeScore {
 	{
 		double handler2CodeRatio=0;
 		String formattedCode=MyTokenizer.format_the_code(targetFragment.CompleteCode);
-		//String lines[]=formattedCode.split("\n");
-		String lines[]=formattedCode.split("\\;");
+		String lines[]=formattedCode.split("\n");
 		double handlercodes=targetFragment.StatementCountScore*targetFragment.HandlerCountScore;
 		handler2CodeRatio=handlercodes/lines.length;
 		return handler2CodeRatio;

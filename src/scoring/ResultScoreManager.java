@@ -3,6 +3,7 @@ package scoring;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import keyword.MyKeywordMaker;
 import core.CodeFragment;
 import core.ScoreWeights;
 
@@ -25,15 +26,34 @@ public class ResultScoreManager {
 	{
 		// code for finalizing the structural scores
 
-		targetFragment.StructuralSimilarityScore = ScoreWeights.CodeObjectFieldMatchWeight
-				* targetFragment.FieldMatchScore;
-		targetFragment.StructuralSimilarityScore += ScoreWeights.CodeObjectMethodMatchWegiht
-				* targetFragment.MethodMatchScore;
-		targetFragment.StructuralSimilarityScore += ScoreWeights.CodeObjectMatchWeight
-				* targetFragment.CodeObjectMatchScore;
-		targetFragment.StructuralSimilarityScore += ScoreWeights.CodeObjectDependencyWegiht
-				* targetFragment.DependencyMatchScore;
-
+		try {
+			targetFragment.StructuralSimilarityScore = ScoreWeights.CodeObjectFieldMatchWeight
+					* targetFragment.FieldMatchScore;
+		} catch (Exception e) {
+			System.err.println("Failed to calculate FieldMatchScore score");
+			e.printStackTrace();
+		}
+		try {
+			targetFragment.StructuralSimilarityScore += ScoreWeights.CodeObjectMethodMatchWegiht
+					* targetFragment.MethodMatchScore;
+		} catch (Exception e) {
+			System.err.println("Failed to calculate MethodMatchScore score");
+			e.printStackTrace();
+		}
+		try {
+			targetFragment.StructuralSimilarityScore += ScoreWeights.CodeObjectMatchWeight
+					* targetFragment.CodeObjectMatchScore;
+		} catch (Exception e) {
+			System.err.println("Failed to calculate CodeObjectMatchScore score");
+			e.printStackTrace();
+		}
+		try {
+			targetFragment.StructuralSimilarityScore += ScoreWeights.CodeObjectDependencyWegiht
+					* targetFragment.DependencyMatchScore;
+		} catch (Exception e) {
+			System.err.println("Failed to calculate DependencyMatchScore");
+			e.printStackTrace();
+		}
 		return targetFragment;
 	}
 	
@@ -46,15 +66,33 @@ public class ResultScoreManager {
 	
 	protected CodeFragment finalizeMiscScore(CodeFragment targetFragment)
 	{
-		targetFragment.HandlerQualityScore=targetFragment.ReadabilityScore*ScoreWeights.ReadabilityWeight;
-		targetFragment.HandlerQualityScore+=targetFragment.StatementCountScore*ScoreWeights.AvgStmtWeight;
-		targetFragment.HandlerQualityScore+=targetFragment.HandlerToCodeRatio*ScoreWeights.H2cRatioWeight;
+		try {
+			targetFragment.HandlerQualityScore = targetFragment.ReadabilityScore
+					* ScoreWeights.ReadabilityWeight;
+		} catch (Exception e) {
+			System.err.println("Failed to calculate ReadabilityScore");
+			e.printStackTrace();
+		}
+		try {
+			targetFragment.HandlerQualityScore += targetFragment.StatementCountScore
+					* ScoreWeights.AvgStmtWeight;
+		} catch (Exception e) {
+			System.err.println("Failed to calculate StatementCountScore");
+			e.printStackTrace();
+		}
+		try {
+			targetFragment.HandlerQualityScore += targetFragment.HandlerToCodeRatio
+					* ScoreWeights.H2cRatioWeight;
+		} catch (Exception e) {
+			System.err.println("Failed to calculate HandlerToCodeRatio");
+			e.printStackTrace();
+		}
 		return targetFragment;
 	}
 	
 	protected ArrayList<CodeFragment> normalizeSubtotalScores(ArrayList<CodeFragment> fragments)
 	{
-		//code for normalizing the subtotal scores
+		//code for normalizing the sub total scores
 		try{
 			double max_content_score=0;
 			double max_struct_score=0;
@@ -69,12 +107,16 @@ public class ResultScoreManager {
 			}
 			//now normalize
 			for(CodeFragment fragment:fragments){
+				if(max_content_score>0)
 				fragment.LexicalSimilarityScore=fragment.LexicalSimilarityScore/max_content_score;
+				if(max_struct_score>0)
 				fragment.StructuralSimilarityScore=fragment.StructuralSimilarityScore/max_struct_score;
+				if(max_quality_score>0)
 				fragment.HandlerQualityScore=fragment.HandlerQualityScore/max_quality_score;
 			}
 		}catch(Exception exc){
 			//handle the exception
+			exc.printStackTrace();
 		}
 		return fragments;
 	}
@@ -92,6 +134,7 @@ public class ResultScoreManager {
 	    		}
 	    	}catch(Exception exc){
 	    		//handle the exception
+	    		exc.printStackTrace();
 	    	}
 	    	return fragments;
 	    }
@@ -102,15 +145,47 @@ public class ResultScoreManager {
 			for(CodeFragment cfragment:Fragments){
 				cfragment=finalizeContentScore(cfragment);
 				cfragment=finalizeStructuralScore(cfragment);
+				//System.out.println("Structure objects:"+cfragment.codeObjectMap.size());
 				cfragment=finalizeMiscScore(cfragment);
 			}
 			//normalize the scores
-			//this.Fragments=normalizeSubtotalScores(this.Fragments);
+			ArrayList<CodeFragment> normalized=normalizeSubtotalScores(this.Fragments);
 			//calculate total scores
-			this.Fragments=calculateTotalScores(this.Fragments);
+			ArrayList<CodeFragment> totalCalc=calculateTotalScores(normalized);
+			//label the items
+			ArrayList<CodeFragment> labeledFrags=addkeywords(totalCalc);
 			//now sort the items
-			ArrayList<CodeFragment> sorted=sortItems(Fragments);
+			ArrayList<CodeFragment> sorted=sortItems(labeledFrags);
+			
+			sorted=normalizeTotalScores(sorted);
+			
 			return sorted;
+		}
+		
+		protected ArrayList<CodeFragment> normalizeTotalScores(ArrayList<CodeFragment> sorted)
+		{
+			//normalizing the sorted scores
+			double maxScore=0;
+			for(CodeFragment cf:sorted){
+				if(cf.total_lexical_structural_readability_handlerquality_score>maxScore)
+					maxScore=cf.total_lexical_structural_readability_handlerquality_score;
+			}
+			//now normaize
+			for(CodeFragment cf:sorted){
+				cf.total_lexical_structural_readability_handlerquality_score=
+						cf.total_lexical_structural_readability_handlerquality_score/maxScore;
+			}
+			return sorted;
+		}
+		
+		
+		protected ArrayList<CodeFragment> addkeywords(ArrayList<CodeFragment> items)
+		{
+			for(CodeFragment codeFragment:items){
+				MyKeywordMaker maker=new MyKeywordMaker(codeFragment);
+				codeFragment=maker.getLabeledResult();
+			}
+			return items;
 		}
 		
 		protected ArrayList<CodeFragment> sortItems(ArrayList<CodeFragment> items)

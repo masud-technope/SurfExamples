@@ -5,6 +5,7 @@ import indexing.CFIndexManager;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
+
 import scoring.ResultScoreManager;
 import scoring.ScoreCalculator;
 import structural.InputDocProcessor;
@@ -33,7 +34,7 @@ public class MyLocalResultMaker {
 	
 	protected CodeFragment collectQueryCodeFragment()
 	{
-		InputDocProcessor inputProcessor=new InputDocProcessor(exceptionName, contextCode);
+		InputDocProcessor inputProcessor=new InputDocProcessor(exceptionName, contextCode,0);
 		return inputProcessor.extractInputDocumentInfo();
 	}
 	
@@ -163,7 +164,7 @@ public class MyLocalResultMaker {
 //			 if(new File(StaticData.Surf_Data_Base+"/querycodes/"+i+".txt").exists()==false){
 //					continue;
 //			 }
-			 int exceptionID=38;//i;
+			 int exceptionID=45;//i;
 			 MyLocalResultMaker maker=new MyLocalResultMaker(exceptionID);
 			 maker.provideFinalRankedExamples();
 			 //System.out.println("Done:"+i);

@@ -28,6 +28,19 @@ public class RegexMatcher {
 		return matched;
 	}
 	
+	public static String extractExceptionName(String searchQuery) {
+		// extracting exception name from search query
+		String[] parts = searchQuery.split("\\s+");
+		String exceptionName = new String();
+		for (String str : parts) {
+			if (str.endsWith("Exception")) {
+				exceptionName = str.trim();
+				break;
+			}
+		}
+		return exceptionName;
+	}
+	
 	public static boolean matches_exception_name(String token) {
 		boolean matched = false;
 		try {
@@ -44,7 +57,6 @@ public class RegexMatcher {
 		}
 		return matched;
 	}
-	
 	
 	public static void main(String args[]) {
 		try {

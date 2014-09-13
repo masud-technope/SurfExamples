@@ -28,7 +28,7 @@ public class GitHubThread implements Runnable {
 			String callURL = developSearchURL();
 			String apiResponse = GitHubClient.exceuteGitHubCall(callURL);
 			this.codeFiles =GitHubResponseDecoder.extractResultsFromJSON(apiResponse);
-			this.codeFiles=getPageContent();
+			//this.codeFiles=getPageContent();
 			//this.codeFiles=refineCodeResults();
 		}catch(Exception exc){
 			//handle the exception

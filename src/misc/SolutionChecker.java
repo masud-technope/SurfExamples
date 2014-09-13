@@ -33,8 +33,8 @@ public class SolutionChecker {
 		boolean matched=false;
 		try{
 			String solFile=StaticData.Surf_Data_Base+"/solution/solfiles/"+exceptionID+"/"+solFragID+".txt";
-			String candidate=StaticData.Surf_Data_Base+"/fragmentsIndex/"+exceptionID+"/"+candFragID+".ser";
-			//String candidate=StaticData.Surf_Data_Base+"/fragmentsIndexAll/"+candFragID+".ser";
+			//String candidate=StaticData.Surf_Data_Base+"/fragmentsIndex/"+exceptionID+"/"+candFragID+".ser";
+			String candidate=StaticData.Surf_Data_Base+"/fragmentsIndexAll/"+candFragID+".ser";
 			String completeCode1=getFileContent(solFile);
 			String completeCode2=getSerializedContent1(candidate);
 			if(completeCode1.contains(completeCode2))
@@ -46,8 +46,24 @@ public class SolutionChecker {
 		return matched;
 	}
 	
+	public static boolean matchLuceneSolutionCode(int exceptionID, int solFragID, int candFragID, int folderID){
+		boolean matched=false;
+		try{
+			String solFile=StaticData.Surf_Data_Base+"/solution/solfiles/"+exceptionID+"/"+solFragID+".txt";
+			//String candidate=StaticData.Surf_Data_Base+"/fragmentsIndex/"+exceptionID+"/"+candFragID+".ser";
+			String candidate=StaticData.Surf_Data_Base+"/fragments/"+folderID+"/"+candFragID+".txt";
+			String completeCode1=getFileContent(solFile);
+			String completeCode2=getFileContent(candidate);
+			if(completeCode1.contains(completeCode2))
+				matched=true;
+			else matched=false;
+		}catch(Exception exc){
+			//hanld the exception
+		}
+		return matched;
+	}
 	
-	
+
 	static String getFileContent(String solFile) {
 		String content = new String();
 		try {

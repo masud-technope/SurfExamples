@@ -25,7 +25,7 @@ public class MySearchFiles {
 	String searchQuery;
 	ArrayList<LuceneResult> LEntryList;
 	
-	String index = StaticData.Dataset_home+"/"+"index";
+	String index = StaticData.Lucene_Data_Home+"/"+"indexall";
     String field = "contents";
     String queries = null;
     int repeat = 0;
@@ -37,7 +37,7 @@ public class MySearchFiles {
 	{
 		this.searchQuery=searchQuery;
 		this.LEntryList=new ArrayList<>();
-		index+="/"+exceptionID;
+		//index+="/"+exceptionID;
 		
 		//assigning variables
 		for(int i = 0;i < args.length;i++) {
@@ -70,14 +70,28 @@ public class MySearchFiles {
 	}
 	
 	
-	protected long getPostID(String fileURL)
+	protected int getPostID(String fileURL)
 	{
 		//code for getting post id
 		File file=new File(fileURL);
 		String fileName=file.getName();
 		String postIDStr=fileName.split("\\.")[0];
-		return Long.parseLong(postIDStr);
+		return Integer.parseInt(postIDStr);
 	}
+	
+	protected int getFolderID(String fileURL){
+		File f2=new File(fileURL);
+		String parent=f2.getParent();
+		String[] parts=parent.split("\\\\");
+		String folder=parts[parts.length-1].trim();
+		int folderID=0;
+		if(!folder.isEmpty()){
+			folderID=Integer.parseInt(folder);
+		}else folderID=Integer.parseInt(parts[parts.length-2].trim());
+		//System.out.println(folderID);
+		return folderID;
+	}
+	
 	
 	public ArrayList<LuceneResult> find_lucene_results()
 	{
@@ -96,11 +110,11 @@ public class MySearchFiles {
 			 for(ScoreDoc doc:hits)
 			 {
 				LuceneResult lucres=new LuceneResult();
-				lucres.luceneScore=doc.score;
+				lucres.score=doc.score;
 				Document document=searcher.doc(doc.doc);
-				lucres.title=document.get("title");
 				lucres.fileURL=document.get("path");
-				lucres.postID=getPostID(lucres.fileURL);
+				lucres.fragmentID=getPostID(lucres.fileURL);
+				//lucres.folderID=getFolderID(lucres.fileURL);
 				this.LEntryList.add(lucres);
 			 }
 		 }
