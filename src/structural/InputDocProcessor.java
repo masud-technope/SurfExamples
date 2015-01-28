@@ -38,7 +38,7 @@ public class InputDocProcessor {
 			if(cu==null){
 				System.err.println("The context code is not compilable");
 			}
-			CustomSourceVisitor visitor=new CustomSourceVisitor(exceptionName);
+			CustomSourceVisitor visitor=new CustomSourceVisitor(exceptionName,true);
 			visitor.visit(cu, null);
 			ArrayList<CodeFragment> frags=visitor.getExtractedFragments();
 			

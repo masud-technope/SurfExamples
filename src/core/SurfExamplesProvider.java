@@ -8,6 +8,7 @@ import scoring.ScoreCalculator;
 import structural.InputDocProcessor;
 import utility.CodeDownloader;
 import utility.ContextCodeLoader;
+import utility.MyTokenizer;
 import utility.RegexMatcher;
 
 public class SurfExamplesProvider {
@@ -146,7 +147,7 @@ public class SurfExamplesProvider {
 			ArrayList<CodeFragment> masterList=performParallelScoreCalculation(this.search);
 			//System.out.println("Results collected:"+masterList.size());
 			//showTheCode(masterList);
-			ResultScoreManager manager=new ResultScoreManager(masterList);
+			ResultScoreManager manager=new ResultScoreManager(masterList, this.queryException);
 			finalColls=manager.provideFinalResults();
 			long end=System.currentTimeMillis();
 			//System.out.println("Time required:"+(end-start)/1000.0);
@@ -179,16 +180,19 @@ public class SurfExamplesProvider {
 	
 	public static void main(String[] args){
 		//code for testing
-		String searchQuery="SocketException Socket";
-		int exceptionID=35;
+		String searchQuery="" +
+				"IOException  ArrayList FileInputStream"; 
+		int exceptionID=200;
+		int exceptionLineNumber=16;
 		String codecontext = ContextCodeLoader.loadContextCode(exceptionID);
-		String queryException="SocketException";
-		SurfExamplesProvider provider=new SurfExamplesProvider(queryException, searchQuery, codecontext,5);
+		String queryException="IOException";
+		SurfExamplesProvider provider=new SurfExamplesProvider(queryException, searchQuery, codecontext,exceptionLineNumber);
 		ArrayList<CodeFragment> results=provider.provideFinalRankedExamples();
 		System.out.println("Results found:"+results.size());
 		int count=0;
 		for(CodeFragment cf:results){
-			System.out.println("Structure: "+cf.StructuralSimilarityScore);
+			System.out.println(MyTokenizer.format_the_code(cf.CompleteCode)+"\n=================\n");//+"Structural:"+cf.StructuralSimilarityScore+"\t"+"Lexical:"+cf.LexicalSimilarityScore+"\t"+"Quality:"+cf.HandlerQualityScore+"\n");
+			System.out.println("AOM="+cf.CodeObjectMatchScore+", FAM="+cf.FieldMatchScore+", MIM="+cf.MethodMatchScore+", DDM="+cf.DependencyMatchScore+", CL="+cf.CodeCloneScore+", CS="+cf.CosineSimilarityScore+", R="+cf.ReadabilityScore+", AHA="+cf.HandlerCountScore+", HCR="+cf.HandlerQualityScore);
 			count++;
 			if(count==15)break;
 		}

@@ -12,7 +12,7 @@ public class GitHubThread implements Runnable {
 	ArrayList<CodeFile> codeFiles;
 	String targetRepo;
 	String searchQuery;
-	final int MAXIMUM_EXAMPLES=50; //maximum results to be taken from a source repo
+	final int MAXIMUM_EXAMPLES=50; //maximum results to be taken from a source repository
 
 	public GitHubThread(String targetRepo, String searchQuery) {
 		//initialization
@@ -28,6 +28,7 @@ public class GitHubThread implements Runnable {
 			String callURL = developSearchURL();
 			String apiResponse = GitHubClient.exceuteGitHubCall(callURL);
 			this.codeFiles =GitHubResponseDecoder.extractResultsFromJSON(apiResponse);
+			System.out.println(targetRepo+" "+this.codeFiles.size());
 			//this.codeFiles=getPageContent();
 			//this.codeFiles=refineCodeResults();
 		}catch(Exception exc){

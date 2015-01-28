@@ -34,9 +34,10 @@ public class CustomSourceVisitor extends VoidVisitorAdapter {
 	String exceptionName;
 	public ArrayList<CodeFragment> Fragments;
 	public String errorMessage;
+	boolean querycode=false;
 	
 	
-	public CustomSourceVisitor(String exceptionName)
+	public CustomSourceVisitor(String exceptionName,boolean querycode)
 	{
 		//initializing the code objects
 		codeObjectMap=new HashMap<>();
@@ -50,6 +51,8 @@ public class CustomSourceVisitor extends VoidVisitorAdapter {
 		this.Fragments=new ArrayList<>();
 		//initiating imported classes
 		this.importedClasses=new HashSet<>();
+		//checking query code
+		this.querycode=querycode;
 	}
 	
 	public ArrayList<CodeFragment> getExtractedFragments()
@@ -99,51 +102,54 @@ public class CustomSourceVisitor extends VoidVisitorAdapter {
 			exc.printStackTrace();
 		}
 	}
-	
-	
+
 	@Override
 	public void visit(MethodDeclaration m, Object obj){
 		//visit the method
-		//System.out.println(m.toString());
-		//String handlerCode=new String();
-		//String tryBlockCode=new String();
+		//check if the body contains the handler code
+		BlockStmt body=m.getBody();
+		if(this.querycode){
+			analyzeMethodBody(m, obj);
+		}else{
+		if(body.toString().contains(this.exceptionName)){
+			//storing complete code
+			analyzeMethodBody(m, obj);
+		}}
+	}
+	
+	protected void analyzeMethodBody(MethodDeclaration m, Object obj)
+	{
+		//analyzing the method body
 		int startLine=m.getBeginLine();
 		int endLine=m.getEndLine();
 		String completeCode=new String();
 		BlockStmt body=m.getBody();
-		//check if the body contains the handler code
-		if(body.toString().contains(this.exceptionName)){
-			
-			//storing complete code
-			completeCode=m.toString(); // body.toString();
-			
-			//visiting method parameters
-			List<Parameter> params = m.getParameters();
-			if (params != null) {
-				for (Parameter param : params) {
-					String paramType = param.getType().toString();
-					if (!DataTypes.typeclasses.contains(paramType)) {
-						CodeObject codeObject = new CodeObject(paramType);
-						codeObjectMap.put(paramType, codeObject);
-						IDTypeMap.put(param.getId().toString(), paramType);
-					}
+		completeCode=m.toString(); // body.toString();
+		//visiting method parameters
+		List<Parameter> params = m.getParameters();
+		if (params != null) {
+			for (Parameter param : params) {
+				String paramType = param.getType().toString();
+				if (!DataTypes.typeclasses.contains(paramType)) {
+					CodeObject codeObject = new CodeObject(paramType);
+					codeObjectMap.put(paramType, codeObject);
+					IDTypeMap.put(param.getId().toString(), paramType);
 				}
 			}
-			//visiting statements
-			List<Statement> stmts = body.getStmts();
-			for (Statement stmt : stmts) {
-				stmt.accept(this, obj);
-			}
-			//all statements are browsed
-			addMethodDetails(completeCode,startLine,endLine);
-			//save the information for each method
-			//saveMethodInfo();
-			//MethodInfoDisplay.showMethodDetails(codeObjectMap);
-			//MethodInfoDisplay.showDependencies(dependencies);
-			//clear the HashMap
-			clearContainers();
 		}
-		
+		//visiting statements
+		List<Statement> stmts = body.getStmts();
+		for (Statement stmt : stmts) {
+			stmt.accept(this, obj);
+		}
+		//all statements are browsed
+		addMethodDetails(completeCode,startLine,endLine);
+		//save the information for each method
+		//saveMethodInfo();
+		//MethodInfoDisplay.showMethodDetails(codeObjectMap);
+		//MethodInfoDisplay.showDependencies(dependencies);
+		//clear the HashMap
+		clearContainers();
 	}
 	
 	

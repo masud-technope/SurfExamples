@@ -41,7 +41,7 @@ public class SourceDocumentProcessor {
 		try{
 			InputStream inputStream=new ByteArrayInputStream(this.documentContent.getBytes());
 			CompilationUnit cu=JavaParser.parse(inputStream);
-			CustomSourceVisitor visitor=new CustomSourceVisitor(this.exceptionName);
+			CustomSourceVisitor visitor=new CustomSourceVisitor(this.exceptionName,false);
 			//cu.accept(visitor, null);
 			visitor.visit(cu, null);
 			//store extracted fragments

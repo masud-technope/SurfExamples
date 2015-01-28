@@ -31,4 +31,8 @@ public interface ScoreWeights {
 	public double UsesWeight=1.0;
 	public double CallsWeight=1.0;
 	
+	//thresholds
+	public double HCR_THRESHOLD=0.4;
+	public double EXAMPLE_SIZE_THRESHOLD=0;
+	
 }

@@ -18,7 +18,7 @@ public class GitHubCodeCollector {
 	 * ArrayList<CodeFragment> twitterResults;
 	 */
 
-	String[] repos = { "apache","eclipse", "facebook", "twitter" }; //pelick barchart "eclipse", "facebook"
+	String[] repos = { "apache","eclipse", "facebook", "twitter","google","yahoo"}; //pelick barchart "eclipse", "facebook"
 	//String[] repos={"geotools", "GeoNode","boundlessgeo","netconstructor"};
 	//String[] repos={"cbeams","DouglasAllen","gitbm","spring-projects"};
 	//String[] repos={"mdenburger","ewelinamuciek","kondrak","dxd"};
@@ -46,7 +46,7 @@ public class GitHubCodeCollector {
 				// starting the thread
 				t.start();
 			}
-			int totalRepo = 4;
+			int totalRepo = 6;
 			int completed = 0;
 			while (completed < totalRepo) {
 				for (int i = 0; i < tcollection.size(); i++) {
@@ -62,7 +62,6 @@ public class GitHubCodeCollector {
 					}
 				}
 			}
-
 		} catch (Exception exc) {
 			// handle the exception
 			exc.printStackTrace();
@@ -138,6 +137,7 @@ public class GitHubCodeCollector {
 				fwriter.write(codeFile.CompleteCode);
 				fwriter.close();
 				count++;
+				System.out.println(codeFile.htmlFileURL+" "+codeFile.GitHubScore);
 			}
 		}catch(Exception exc){
 			exc.printStackTrace();
@@ -146,12 +146,11 @@ public class GitHubCodeCollector {
 	
 	public static void main(String[] args) {
 		// main method
-		int exceptionID=49;
-		String searchQuery = "GenericJDBCException Datasource";
+		int exceptionID=200;
+		String searchQuery = "IOException  ArrayList FileInputStream";
 		GitHubCodeCollector gitCodeCollector = new GitHubCodeCollector(
 				searchQuery);
 		gitCodeCollector.collectGitHubResults();
 		gitCodeCollector.saveCodeContents(exceptionID, gitCodeCollector.CodeFiles);
 	}
-
 }
