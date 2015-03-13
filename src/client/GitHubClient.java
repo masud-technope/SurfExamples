@@ -7,7 +7,7 @@ import java.net.URL;
 
 public class GitHubClient {
 	
-	static String developerToken="58882f411bbee0425d6d3c32f9114f169eb7d974";
+	static String developerToken="DEVELOPER_TOKEN";
 	
 	public static String exceuteGitHubCall(String callURL)
 	{
