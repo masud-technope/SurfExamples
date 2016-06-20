@@ -27,6 +27,7 @@ public class GitHubThread implements Runnable {
 		try{
 			String callURL = developSearchURL();
 			String apiResponse = GitHubClient.exceuteGitHubCall(callURL);
+			System.out.println("API response:"+ apiResponse);
 			this.codeFiles =GitHubResponseDecoder.extractResultsFromJSON(apiResponse);
 			System.out.println(targetRepo+" "+this.codeFiles.size());
 			//this.codeFiles=getPageContent();

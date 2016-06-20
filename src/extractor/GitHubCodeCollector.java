@@ -147,10 +147,10 @@ public class GitHubCodeCollector {
 	public static void main(String[] args) {
 		// main method
 		int exceptionID=200;
-		String searchQuery = "IOException  ArrayList FileInputStream";
+		String searchQuery = "ArrayList FileInputStream";
 		GitHubCodeCollector gitCodeCollector = new GitHubCodeCollector(
 				searchQuery);
 		gitCodeCollector.collectGitHubResults();
-		gitCodeCollector.saveCodeContents(exceptionID, gitCodeCollector.CodeFiles);
+		//gitCodeCollector.saveCodeContents(exceptionID, gitCodeCollector.CodeFiles);
 	}
 }
