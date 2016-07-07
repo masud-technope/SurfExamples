@@ -1,4 +1,5 @@
 package extractor;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
@@ -18,18 +19,25 @@ public class GitHubCodeCollector {
 	 * ArrayList<CodeFragment> twitterResults;
 	 */
 
-	String[] repos = { "apache","eclipse", "facebook", "twitter","google","yahoo"}; //pelick barchart "eclipse", "facebook"
-	//String[] repos={"geotools", "GeoNode","boundlessgeo","netconstructor"};
-	//String[] repos={"cbeams","DouglasAllen","gitbm","spring-projects"};
-	//String[] repos={"mdenburger","ewelinamuciek","kondrak","dxd"};
-	//String[] repos={"SiteView", "RMIaou","kgeri","android"};
-	//String[] repos={"apache","bbrobe","romanbb","frostwire"};
+	String[] repos = { "apache", "eclipse", "facebook", "twitter", "google",
+			"yahoo" }; // pelick barchart "eclipse", "facebook"
+
+	// String[] repos={"geotools", "GeoNode","boundlessgeo","netconstructor"};
+	// String[] repos={"cbeams","DouglasAllen","gitbm","spring-projects"};
+	// String[] repos={"mdenburger","ewelinamuciek","kondrak","dxd"};
+	// String[] repos={"SiteView", "RMIaou","kgeri","android"};
+	// String[] repos={"apache","bbrobe","romanbb","frostwire"};
+
+	public GitHubCodeCollector() {
+		// default constructor
+		this.CodeFiles=new ArrayList<>();
+	}
 
 	public GitHubCodeCollector(String searchQuery) {
 		// default constructor
 		this.CodeFiles = new ArrayList<>();
 		this.searchQuery = searchQuery;
-		// initiating the different repos
+		// initiating the different repository
 	}
 
 	public ArrayList<CodeFile> collectGitHubResults() {
@@ -66,12 +74,11 @@ public class GitHubCodeCollector {
 			// handle the exception
 			exc.printStackTrace();
 		}
-		System.out.println("Total results collected:"+this.CodeFiles.size());
+		System.out.println("Total results collected:" + this.CodeFiles.size());
 		return this.CodeFiles;
 	}
 
-	public ArrayList<CodeFile> collectFromLocalRepo(int exceptionID)
-	{
+	public ArrayList<CodeFile> collectFromLocalRepo(int exceptionID) {
 		// collecting code from local repository
 		try {
 			String codeFolder = StaticData.Surf_Data_Base + "/codes/"
@@ -94,15 +101,16 @@ public class GitHubCodeCollector {
 						this.CodeFiles.add(codeFile);
 					} catch (Exception exc) {
 						// handle the exception
+						exc.printStackTrace();
 					}
 				}
 			}
 		} catch (Exception exc) {
+			exc.printStackTrace();
 		}
 		return this.CodeFiles;
 	}
-	
-	
+
 	protected void saveCodeContents(ArrayList<CodeFile> codeFiles) {
 		// code for showing the code contents
 		try {
@@ -119,38 +127,41 @@ public class GitHubCodeCollector {
 			// handle the exception
 		}
 	}
-	protected void saveCodeContents(int exceptionID, ArrayList<CodeFile> codeFiles)
-	{
-		//code for saving the code contents
-		try{
+
+	protected void saveCodeContents(int exceptionID,
+			ArrayList<CodeFile> codeFiles) {
+		// code for saving the code contents
+		try {
 			int count = 0;
 			String dir = StaticData.Surf_Data_Base + "/codes/" + exceptionID;
 			File fdir = new File(dir);
 			if (!fdir.exists())
 				fdir.mkdir();
-			
+
 			for (CodeFile codeFile : codeFiles) {
-				String fileURL = StaticData.Surf_Data_Base + "/codes/"+exceptionID+"/"+ count
-						+ ".java";
+				String fileURL = StaticData.Surf_Data_Base + "/codes/"
+						+ exceptionID + "/" + count + ".java";
 				File f = new File(fileURL);
 				FileWriter fwriter = new FileWriter(f);
 				fwriter.write(codeFile.CompleteCode);
 				fwriter.close();
 				count++;
-				System.out.println(codeFile.htmlFileURL+" "+codeFile.GitHubScore);
+				System.out.println(codeFile.htmlFileURL + " "
+						+ codeFile.GitHubScore);
 			}
-		}catch(Exception exc){
+		} catch (Exception exc) {
 			exc.printStackTrace();
 		}
 	}
-	
+
 	public static void main(String[] args) {
 		// main method
-		int exceptionID=200;
+		int exceptionID = 200;
 		String searchQuery = "ArrayList FileInputStream";
 		GitHubCodeCollector gitCodeCollector = new GitHubCodeCollector(
 				searchQuery);
 		gitCodeCollector.collectGitHubResults();
-		//gitCodeCollector.saveCodeContents(exceptionID, gitCodeCollector.CodeFiles);
+		// gitCodeCollector.saveCodeContents(exceptionID,
+		// gitCodeCollector.CodeFiles);
 	}
 }

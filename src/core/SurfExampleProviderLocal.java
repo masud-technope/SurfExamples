@@ -1,60 +1,34 @@
 package core;
 
-import java.io.File;
-import java.io.FileWriter;
+import indexing.CFIndexManager;
 import java.util.ArrayList;
 import scoring.ResultScoreManager;
 import scoring.ScoreCalculator;
 import structural.InputDocProcessor;
-import utility.CodeDownloader;
 import utility.ContextCodeLoader;
-import utility.MyTokenizer;
-import utility.RegexMatcher;
+import utility.ExceptionKeyLoader;
 
-public class SurfExamplesProvider {
+public class SurfExampleProviderLocal {
 
 	String searchQuery;
 	String contextCode;
 	String exceptionName;
 	CodeFragment queryFragment;
 	ArrayList<CodeFragment> Fragments;
-	ArrayList<CodeFile> CodeFiles;
-	SurfExampleSearch search;
 	String queryException;
 	int targetExceptionLine;
 	int testCaseNum = 0;
 
-	public SurfExamplesProvider(String queryException, String searchQuery,
-			String contextCode, int targetExceptionLine) {
-		// initialization
-		this.queryException = queryException;
-		this.searchQuery = searchQuery;
-		this.targetExceptionLine = targetExceptionLine;
-		// extracting the exception name
-		this.exceptionName = RegexMatcher
-				.extractExceptionName(this.searchQuery);
-		this.contextCode = contextCode;
-		// query code fragment info
-		this.queryFragment = collectQueryCodeFragment();
-		this.Fragments = new ArrayList<>();
-		this.CodeFiles = new ArrayList<>();
-		this.search = new SurfExampleSearch(this.searchQuery);
-	}
-
-	public SurfExamplesProvider(String queryException, String searchQuery, int testCaseNum,
-			String contextCode, int targetExceptionLine) {
-		// initialization
+	public SurfExampleProviderLocal(int testCaseNum, String queryException,
+			int targetExceptionLine, String contextCode) {
 		this.queryException = queryException;
 		this.testCaseNum = testCaseNum;
 		this.targetExceptionLine = targetExceptionLine;
 		// extracting the exception name
-		this.exceptionName = RegexMatcher.extractExceptionName(searchQuery);
 		this.contextCode = contextCode;
 		// query code fragment info
 		this.queryFragment = collectQueryCodeFragment();
 		this.Fragments = new ArrayList<>();
-		this.CodeFiles = new ArrayList<>();
-		this.search = new SurfExampleSearch(this.testCaseNum);
 	}
 
 	protected CodeFragment collectQueryCodeFragment() {
@@ -63,23 +37,25 @@ public class SurfExamplesProvider {
 		return inputProcessor.extractInputDocumentInfo();
 	}
 
-	protected ArrayList<CodeFragment> performParallelScoreCalculation(
-			SurfExampleSearch search) {
+	protected ArrayList<CodeFragment> performParallelScoreCalculation() {
 		// master result list
 		ArrayList<CodeFragment> masterList = new ArrayList<CodeFragment>();
+		// load the primary fragment list from local repository
+		this.Fragments = CFIndexManager.readCodeFragment(this.testCaseNum);
+
 		// now perform the parallel task on the search operations
 		int number_of_processors = 10;// Runtime.getRuntime().availableProcessors();
 		// step size
 		int stepSize = 0;
 
-		double _stepsize = (double) search.CodeFiles.size()
+		double _stepsize = (double) this.Fragments.size()
 				/ number_of_processors;
 
 		stepSize = (int) Math.ceil(_stepsize);
 		if (stepSize <= 1) {
-			stepSize = search.CodeFiles.size() % number_of_processors;
-			ScoreCalculator scal = new ScoreCalculator(search.CodeFiles,
-					this.contextCode, this.exceptionName, this.queryFragment);
+			stepSize = this.Fragments.size() % number_of_processors;
+			ScoreCalculator scal = new ScoreCalculator(this.contextCode,
+					this.exceptionName, this.queryFragment, this.Fragments);
 			masterList.addAll(scal.getComputedResults());
 			return masterList;
 		}
@@ -88,17 +64,13 @@ public class SurfExamplesProvider {
 		ArrayList<ScoreCalculator> scals = new ArrayList<ScoreCalculator>();
 		System.out.println("Processors found:" + number_of_processors);
 
-		// log.info("Processors found"+number_of_processors);
-
 		// parallelize the score computation
 		for (int i = 0; i < number_of_processors; i++) {
-			ArrayList<CodeFile> tempList = provide_segmented_links(
-					search.CodeFiles, i * stepSize, stepSize);
-			ScoreCalculator scal = new ScoreCalculator(tempList,
-					this.contextCode, this.exceptionName, this.queryFragment);
-			
-			
-			
+			ArrayList<CodeFragment> tempList = provide_segmented_links(
+					this.Fragments, i * stepSize, stepSize);
+			ScoreCalculator scal = new ScoreCalculator(this.contextCode,
+					this.exceptionName, this.queryFragment, tempList);
+
 			Runnable runnable = scal;
 			Thread t = new Thread(runnable);
 			t.setName("Thread: #" + i);
@@ -132,21 +104,42 @@ public class SurfExamplesProvider {
 		return masterList;
 	}
 
-	protected ArrayList<CodeFile> provide_segmented_links(
-			ArrayList<CodeFile> totalLinks, int index, int stepSize) {
+	protected ArrayList<CodeFragment> provide_segmented_links(
+			ArrayList<CodeFragment> totalLinks, int index, int stepSize) {
 		// code for providing segmented links
-		ArrayList<CodeFile> tempList = new ArrayList<CodeFile>();
+		ArrayList<CodeFragment> tempList = new ArrayList<>();
 		int endIndex = index + stepSize;
 		if (endIndex > totalLinks.size())
 			endIndex = totalLinks.size();
 		for (int i = index; i < endIndex; i++) {
-			CodeFile result = totalLinks.get(i);
+			CodeFragment result = totalLinks.get(i);
 			tempList.add(result);
 		}
 		System.out.println("Thread #" + index + ": URL index:" + index + " to "
 				+ (endIndex - 1));
 		// returning temporary list
 		return tempList;
+	}
+
+	public ArrayList<CodeFragment> provideFinalRankedExamples() {
+		// code for preparing the final results
+		ArrayList<CodeFragment> finalColls = null;
+		try {
+			long start = System.currentTimeMillis();
+			ArrayList<CodeFragment> masterList = performParallelScoreCalculation();
+			// System.out.println("Results collected:"+masterList.size());
+			// showTheCode(masterList);
+			ResultScoreManager manager = new ResultScoreManager(masterList,
+					this.queryException);
+			finalColls = manager.provideFinalResults();
+			long end = System.currentTimeMillis();
+			System.out.println("Time required:" + (end - start) / 1000.0);
+			System.out.println("Final score calculated successfully.");
+		} catch (Exception exc) {
+			// handle the exception
+			exc.printStackTrace();
+		}
+		return finalColls;
 	}
 
 	protected void showTheCode(ArrayList<CodeFragment> codeFragments) {
@@ -159,68 +152,33 @@ public class SurfExamplesProvider {
 		}
 	}
 
-	public ArrayList<CodeFragment> provideFinalRankedExamples() {
-		// code for preparing the final results
-		ArrayList<CodeFragment> finalColls = null;
-		try {
-			long start = System.currentTimeMillis();
-			ArrayList<CodeFragment> masterList = performParallelScoreCalculation(this.search);
-			// System.out.println("Results collected:"+masterList.size());
-			// showTheCode(masterList);
-			ResultScoreManager manager = new ResultScoreManager(masterList,
-					this.queryException);
-			finalColls = manager.provideFinalResults();
-			long end = System.currentTimeMillis();
-			// System.out.println("Time required:"+(end-start)/1000.0);
-			System.out.println("Final score calculated successfully.");
-		} catch (Exception exc) {
-			// handle the exception
-			exc.printStackTrace();
-		}
-		return finalColls;
-	}
-
-	protected void saveCodeContents(ArrayList<CodeFile> codeFiles) {
-		// code for showing the code contents
-		try {
-			CodeDownloader downloader = new CodeDownloader(codeFiles);
-			codeFiles = downloader.downloadCodeContents();
-			int count = 0;
-			for (CodeFile codeFile : codeFiles) {
-				String fileURL = StaticData.Surf_Data_Base + "/codes/" + count
-						+ ".java";
-				File f = new File(fileURL);
-				FileWriter fwriter = new FileWriter(f);
-				fwriter.write(codeFile.CompleteCode);
-				fwriter.close();
-				count++;
-			}
-		} catch (Exception exc) {
-			// handle the exception
-		}
-	}
-
 	public static void main(String[] args) {
 		// code for testing
-		String searchQuery = "InputMismatchException  Scanner";
-		int exceptionID = 11;
-		int exceptionLineNumber = 35;
+		int exceptionID = 87;
+		int exceptionLineNumber = 31;
 		String codecontext = ContextCodeLoader.loadContextCode(exceptionID);
-		String queryException = "InputMismatchException";
-		SurfExamplesProvider provider = new SurfExamplesProvider(
-				queryException, searchQuery,  exceptionID, codecontext, exceptionLineNumber);
+		String queryException = ExceptionKeyLoader
+				.getExceptionName(exceptionID);
+		SurfExampleProviderLocal provider = new SurfExampleProviderLocal(
+				exceptionID, queryException, exceptionLineNumber, codecontext);
 		ArrayList<CodeFragment> results = provider.provideFinalRankedExamples();
 		System.out.println("Results found:" + results.size());
 		int count = 0;
 		for (CodeFragment cf : results) {
-			System.out.println(MyTokenizer.format_the_code(cf.CompleteCode)
-					+ "\n=================\n");// +"Structural:"+cf.StructuralSimilarityScore+"\t"+"Lexical:"+cf.LexicalSimilarityScore+"\t"+"Quality:"+cf.HandlerQualityScore+"\n");
+			// System.out.println(MyTokenizer.format_the_code(cf.CompleteCode)+
+			// "\n=================\n"
+			// +"Structural:"+cf.StructuralSimilarityScore+"\t"+"Lexical:"+cf.LexicalSimilarityScore+"\t"+"Quality:"+cf.HandlerQualityScore+"\n");
+			System.out.println("Fragment ID:" + cf.FragmentID);
+			System.out.println("Structural:" + cf.StructuralSimilarityScore
+					+ "\t" + "Lexical:" + cf.LexicalSimilarityScore + "\t"
+					+ "Quality:" + cf.HandlerQualityScore);
 			System.out.println("AOM=" + cf.CodeObjectMatchScore + ", FAM="
 					+ cf.FieldMatchScore + ", MIM=" + cf.MethodMatchScore
 					+ ", DDM=" + cf.DependencyMatchScore + ", CL="
 					+ cf.CodeCloneScore + ", CS=" + cf.CosineSimilarityScore
 					+ ", R=" + cf.ReadabilityScore + ", AHA="
 					+ cf.HandlerCountScore + ", HCR=" + cf.HandlerQualityScore);
+			System.out.println("------------------------------------");
 			count++;
 			if (count == 15)
 				break;

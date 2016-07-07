@@ -22,7 +22,7 @@ public class ScoreCalculator implements Runnable {
 		this.exceptionName=exceptionName;
 		this.queryFragment=queryFragment;
 		//creating downloader object
-		this.downloader=new CodeDownloader(this.codeFiles);
+		//this.downloader=new CodeDownloader(this.codeFiles);
 	}
 	
 	public ScoreCalculator(String contextCode, String exceptionName, CodeFragment queryFragment, ArrayList<CodeFragment> codeFragments)
@@ -48,10 +48,10 @@ public class ScoreCalculator implements Runnable {
 			//downloading the code
 			
 			/*****temporary commented****/
-			this.codeFiles=downloader.downloadCodeContents();
+			//this.codeFiles=downloader.downloadCodeContents();
 			//extract the code fragments
-			SourceCodeElementExtractor sourceExtractor=new SourceCodeElementExtractor(exceptionName, codeFiles);
-			this.Fragments=sourceExtractor.collectCodeFragments();
+			//SourceCodeElementExtractor sourceExtractor=new SourceCodeElementExtractor(exceptionName, codeFiles);
+			//this.Fragments=sourceExtractor.collectCodeFragments();
 			//System.out.println("Query elements:"+this.queryFragment.codeObjectMap.size());
 			/*****temporary commented*******/
 			

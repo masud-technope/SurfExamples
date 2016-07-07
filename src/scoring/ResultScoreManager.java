@@ -190,9 +190,6 @@ public class ResultScoreManager {
 			cfragment = finalizeContentScore(cfragment);
 			cfragment = finalizeStructuralScore(cfragment);
 			cfragment = finalizeMiscScore(cfragment);
-			// total code lines
-			//int sloc = cfragment.CompleteCode.split("\n").length;
-			//this.totalCodeLine += sloc;
 		}
 		//System.out.println(this.totalCodeLine + " " + this.Fragments.size());
 		// averaging the code lines
@@ -200,7 +197,7 @@ public class ResultScoreManager {
 		//System.out.println("Average LOC=" + this.avgCodeLine);
 		System.out.println("Older:" + this.Fragments.size());
 		// discarding empty handler codes
-		ArrayList<CodeFragment> refined = discardEmptyOrLargeHandlers(this.Fragments);
+		ArrayList<CodeFragment> refined =discardEmptyOrLargeHandlers(this.Fragments);
 		System.out.println("Newer:" + refined.size());
 		// normalize the scores
 		ArrayList<CodeFragment> normalized = normalizeSubtotalScores(refined);
